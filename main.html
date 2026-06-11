@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Padel Tulostaulu</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #111;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+        .team {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            transition: background 0.2s;
+        }
+        #team1 { background-color: #1a365d; } /* Sininen */
+        #team2 { background-color: #742a2a; } /* Punainen */
+        
+        .name { font-size: 4vh; font-weight: bold; margin-bottom: 2vh; text-transform: uppercase; }
+        .score { font-size: 30vh; font-weight: bold; line-height: 1; }
+        .games { font-size: 6vh; color: #ccc; margin-top: 2vh; }
+        
+        #vs {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            background: #111;
+            padding: 2vh;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 3vh;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="team1" class="team">
+        <div class="name">KOTI (Nappi M5)</div>
+        <div id="score1" class="score">0</div>
+        <div id="games1" class="games">Geimit: 0</div>
+    </div>
+
+    <div id="vs">VS</div>
+
+    <div id="team2" class="team">
+        <div class="name">VIERAAT (Sivunappi)</div>
+        <div id="score2" class="score">0</div>
+        <div id="games2" class="games">Geimit: 0</div>
+    </div>
+
+    <script>
+        const pisteet = ["0", "15", "30", "40", "Ad"];
+        let t1Idx = 0, t2Idx = 0;
+        let t1Games = 0, t2Games = 0;
+
+        function paivitaNaytto() {
+            document.getElementById("score1").innerText = pisteet[t1Idx];
+            document.getElementById("score2").innerText = pisteet[t2Idx];
+            document.getElementById("games1").innerText = "Geimit: " + t1Games;
+            document.getElementById("games2").innerText = "Geimit: " + t2Games;
+        }
+
+        function lisaaPiste(tiimi) {
+            if (tiimi === 1) {
+                if (t1Idx === 3 && t2Idx < 3) { geimiVoitto(1); return; } // 40-0, 40-15, 40-30 -> Voitto
+                if (t1Idx === 3 && t2Idx === 3) { t1Idx = 4; } // Tasatilanne -> Etu koti
+                else if (t2Idx === 4) { t2Idx = 3; } // Vieraiden etu purautuu tasoihin
+                else if (t1Idx === 4) { geimiVoitto(1); return; } // Edusta voittoon
+                else { t1Idx++; }
+            } else {
+                if (t2Idx === 3 && t1Idx < 3) { geimiVoitto(2); return; }
+                if (t2Idx === 3 && t1Idx === 3) { t2Idx = 4; } // Tasatilanne -> Etu vieras
+                else if (t1Idx === 4) { t1Idx = 3; } // Kodin etu purautuu tasoihin
+                else if (t2Idx === 4) { geimiVoitto(2); return; } // Edusta voittoon
+                else { t2Idx++; }
+            }
+            paivitaNaytto();
+        }
+
+        function geimiVoitto(tiimi) {
+            t1Idx = 0; t2Idx = 0;
+            if (tiimi === 1) t1Games++;
+            else t2Games++;
+            paivitaNaytto();
+        }
+
+        // KUUNNELLAAN NÄPPÄIMIÄ (M5Stickin lähetyksiä)
+        window.addEventListener("keydown", function(event) {
+            if (event.key === "1") lisaaPiste(1);
+            if (event.key === "2") lisaaPiste(2);
+            
+            // Tyhjennetään peli painamalla välilyöntiä (puhelimen omalta näppäimistöltä tarvittaessa)
+            if (event.key === " ") {
+                t1Idx = 0; t2Idx = 0; t1Games = 0; t2Games = 0;
+                paivitaNaytto();
+            }
+        });
+    </script>
+</body>
+</html>
